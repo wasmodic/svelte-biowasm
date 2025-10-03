@@ -1,44 +1,68 @@
 <script lang="ts">
-    import Aioli from "@biowasm/aioli";
+  import Aioli from "@biowasm/aioli";
+  import { Switch } from '@skeletonlabs/skeleton-svelte';
 
-  let inputSequence: string = '';
-  let outputFormat: string = 'Clustal';
-  let isProcessing: boolean = false;
+  let inputSequence = $state('');
+  let outputFormat = $state('Clustal');
+  let isProcessing = $state(false);
+  
+  // Dark mode toggle state
+  let checked = $state(false);
+
+  $effect(() => {
+    const mode = localStorage.getItem('mode') || 'light';
+    checked = mode === 'dark';
+  });
+
+  const onCheckedChange = (event: { checked: boolean }) => {
+    const mode = event.checked ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-mode', mode);
+    localStorage.setItem('mode', mode);
+    checked = event.checked;
+  };
 
   
 
   // Example sequence
-  const exampleSequence: string = `>seq1
-ATGCGATCGATCGATCGATC
->seq2
-ATGCGATCGATCGATCGCTC
->seq3
-ATGCGATCGATCGTTCGATC`;
+  const exampleSequence: string = `>test1 
+MGDVEKGKKIFIMKCSQCHTVEKGGKHKTGPNLHGLFGRKTGQAPGYSYTAANKNKGIIW 
+GEDTLMEYLENPKKYIPGTKMIFVGIKKKEERADLIAYLKKATNE  
+>test2 
+MGDVEKGKKIFVQKCAQCHTVEKGGKHKTGPNLHGLFGRKTGQAAGFSYTDANKNKGITW 
+GEDTLMEYLENPKKYIPGTKMIFAGIKKKGERADLIAYLKKATNE 
+>test3 
+MTEFKAGSAKKGATLFKTRCLQCHTVEKGGPHKVGPNLHGIFGRHSGQAEGYSYTDANIK 
+KNVLWDENNMSEYLTNPKKYIPGTKMAFGGLKKEKDRNDLITYLK`;
 
-  // Dummy alignment function
+  // MUSCLE alignment function with format support
   async function performAlignment(sequence: string, format: string): Promise<string> {
-    // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    const CLI = await new Aioli(["muscle/3.8.1551"]);
     
-    // Return dummy aligned result based on format
-    switch(format) {
-      case 'Clustal':
-        return `CLUSTAL W (1.83) multiple sequence alignment
-
-seq1    ATGCGATCGATCGATCGATC
-seq2    ATGCGATCGATCGATCGCTC
-seq3    ATGCGATCGATCGTTCGATC
-        ************ *** ***`;
-      case 'FASTA':
-        return `>seq1
-ATGCGATCGATCGATCGATC
->seq2
-ATGCGATCGATCGATCGCTC
->seq3
-ATGCGATCGATCGTTCGATC`;
-      default:
-        return `Aligned sequences in ${format} format:\n${sequence}`;
+    await CLI.mount({
+      name: "input.fa",
+      data: sequence
+    });
+    
+    // Configure format flags and file extensions
+    const formatConfig: Record<string, { flag: string; ext: string }> = {
+      'FASTA': { flag: '', ext: 'fa' },
+      'Clustal': { flag: '-clw', ext: 'aln' },
+      'Clustal (strict)': { flag: '-clwstrict', ext: 'aln' },
+      'HTML': { flag: '-html', ext: 'html' },
+      'GCG MSF': { flag: '-msf', ext: 'msf' },
+      'Phylip interleaved': { flag: '-phyi', ext: 'phy' },
+      'Phylip sequential': { flag: '-phys', ext: 'phy' }
+    };
+    
+    const config = formatConfig[format] || formatConfig['FASTA'];
+    const outputFile = `output.${config.ext}`;
+    let muscleCommand = `muscle -in input.fa -out ${outputFile}`.trim();
+    if (config.ext !== 'fa') {
+      muscleCommand = `muscle ${config.flag} -in input.fa -out ${outputFile}`.trim();
     }
+    await CLI.exec(muscleCommand);
+    const output = await CLI.cat(outputFile);
+    return output;
   }
 
   // Download file function
@@ -113,8 +137,18 @@ ATGCGATCGATCGTTCGATC`;
   }
 </script>
 
-<h1 class="h1">Muscle WebAssembly</h1>
-<form class="mx-auto w-full space-y-4" on:submit={handleSubmit}>
+<svelte:head>
+  <script>
+    const mode = localStorage.getItem('mode') || 'light';
+    document.documentElement.setAttribute('data-mode', mode);
+  </script>
+</svelte:head>
+
+<div class="flex justify-between items-center mb-4">
+  <h1 class="h1">Muscle WebAssembly</h1>
+  <Switch {checked} {onCheckedChange}></Switch>
+</div>
+<form class="mx-auto w-full space-y-4" onsubmit={handleSubmit}>
   <label class="label">
     <span class="label-text h3">Input Sequence</span>
     <textarea
@@ -124,21 +158,23 @@ ATGCGATCGATCGTTCGATC`;
       placeholder="Paste your sequence here - or use the example sequence"
     ></textarea>
   </label>
-  <button type="button" class="btn preset-filled-primary-500" on:click={handleFileUpload}>Upload File</button>
+  <button type="button" class="btn preset-filled-primary-500" onclick={handleFileUpload}>Upload File</button>
   <div class="btn-group w-full justify-end">
-      <button type="button" class="btn preset-filled-secondary-500" on:click={useExample}>Use the example</button>
-      <button type="button" class="btn preset-filled-secondary-500" on:click={clearSequence}>Clear sequence</button>
+      <button type="button" class="btn preset-filled-secondary-500" onclick={useExample}>Use the example</button>
+      <button type="button" class="btn preset-outlined-secondary-500" onclick={clearSequence}>Clear sequence</button>
   </div>
 
   <div class="form-control">
     <label class="label cursor-pointer">
       <span class="label-text">Output Format</span>
       <select bind:value={outputFormat} class="select select-bordered w-full max-w-xs">
-        <option>Clustal</option>
         <option>FASTA</option>
-        <option>MSF</option>
-        <option>Phylip</option>
-        <option>Stockholm</option>
+        <option>Clustal</option>
+        <option>Clustal (strict)</option>
+        <option>HTML</option>
+        <option>GCG MSF</option>
+        <option>Phylip interleaved</option>
+        <option>Phylip sequential</option>
       </select>
     </label>
   </div>

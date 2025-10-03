@@ -26,6 +26,7 @@
 		"vite": "^7.0.4"
 	},
 	"dependencies": {
-		"@biowasm/aioli": "^3.2.1"
+		"@biowasm/aioli": "^3.2.1",
+		"@sveltejs/adapter-static": "^3.0.10"
 	}
 }

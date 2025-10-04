@@ -1,38 +1,15 @@
-# sv
+# Wasm version of EMBL-EBI's Muscle service
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+This is a SvelteKit-based web application that provides a WebAssembly (Wasm) version of the Muscle multiple sequence alignment tool. The application allows users to perform sequence alignments directly in their web browsers without the need for server-side processing.
 
-## Creating a project
+You can find the live application here: https://blog.wytamma.com/embl-ebi-muscle-wasm 
 
-If you're seeing this, you've probably already done this step. Congrats!
+# Development video 
 
-```sh
-# create a new project in the current directory
-npx sv create
+I recorded a video of the development process, which you can watch here: [YouTube Video](https://www.youtube.com/watch?v=nwoTI0WhznQ). It's pretty ruff (i did zero prep), but it might be interesting to see how I approached building this application.
 
-# create a new project in my-app
-npx sv create my-app
-```
+# Deployment video
 
-## Developing
+I also recorded a video of the deployment process, which you can watch here: [YouTube Video](https://www.youtube.com/watch?v=gvXMMXdpiBg). This video covers how I set up the GitHub Actions workflow to automate the build and deployment of the application.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.

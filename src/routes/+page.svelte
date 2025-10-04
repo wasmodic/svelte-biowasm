@@ -148,9 +148,14 @@ KNVLWDENNMSEYLTNPKKYIPGTKMAFGGLKKEKDRNDLITYLK`;
   <h1 class="h1">Muscle WebAssembly</h1>
   <Switch {checked} {onCheckedChange}></Switch>
 </div>
+<p class="mb-6 text-gray-700 dark:text-gray-300">
+  MUSCLE (MUltiple Sequence Comparison by Log-Expectation) running entirely in your browser via WebAssembly. 
+  This client-side implementation provides fast, accurate multiple sequence alignment without requiring server uploads - 
+  your data never leaves your computer.
+</p>
 <form class="mx-auto w-full space-y-4" onsubmit={handleSubmit}>
   <label class="label">
-    <span class="label-text h3">Input Sequence</span>
+    <span class="label-text h4">Input Sequence</span>
     <textarea
       bind:value={inputSequence}
       class="textarea"
@@ -166,7 +171,7 @@ KNVLWDENNMSEYLTNPKKYIPGTKMAFGGLKKEKDRNDLITYLK`;
 
   <div class="form-control">
     <label class="label cursor-pointer">
-      <span class="label-text">Output Format</span>
+      <span class="label-text h4">Output Format</span>
       <select bind:value={outputFormat} class="select select-bordered w-full max-w-xs">
         <option>FASTA</option>
         <option>Clustal</option>
@@ -186,3 +191,7 @@ KNVLWDENNMSEYLTNPKKYIPGTKMAFGGLKKEKDRNDLITYLK`;
     {isProcessing ? 'Processing...' : 'Run Alignment'}
   </button>
 </form>
+<div class="text-center mt-6">
+    <a class="mt-4 text-sm text-gray-500 dark:text-gray-400 underline" href="https://github.com/Wytamma/embl-ebi-muscle-wasm">
+        Open source code on GitHub</a>
+</div>

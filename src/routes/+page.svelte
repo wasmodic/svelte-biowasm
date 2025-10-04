@@ -192,6 +192,6 @@ KNVLWDENNMSEYLTNPKKYIPGTKMAFGGLKKEKDRNDLITYLK`;
   </button>
 </form>
 <div class="text-center mt-6">
-    <a class="mt-4 text-sm text-gray-500 dark:text-gray-400 underline" href="https://github.com/Wytamma/embl-ebi-muscle-wasm">
-        Open source code on GitHub</a>
+    <a class="mt-4 text-sm text-gray-400 dark:text-gray-500 hover:underline" href="https://github.com/Wytamma/embl-ebi-muscle-wasm">
+        Open source on GitHub</a>
 </div>

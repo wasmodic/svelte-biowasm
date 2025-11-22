@@ -4,7 +4,7 @@ on:
     branches:
         - main
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,8 +30,24 @@ jobs:
           CI: false
           NODE_OPTIONS: "--max_old_space_size=4096"
 
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
+          path: ./dist
+
+  deploy:
+      needs: build
+      if: github.ref == 'refs/heads/main'
+      permissions:
+        pages: write
+        id-token: write
+  
+      environment:
+        name: github-pages
+        url: ${{ steps.deployment.outputs.page_url }}
+  
+      runs-on: ubuntu-latest
+      steps:
+        - name: Deploy to GitHub Pages
+          id: deployment
+          uses: actions/deploy-pages@v4
